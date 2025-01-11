@@ -4,7 +4,7 @@ import { database } from '../firebase.config';
 import { ref, get, child } from "firebase/database";
 
 
-function LogAdmin() {
+function LogAdmin1() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +21,7 @@ function LogAdmin() {
           const admins = snapshot.val();
   
           // Check if the entered credentials match any stored admin credentials
-          let isValid = false;
+          let isValid = false;  
           for (const key in admins) {
             if (
               admins[key].Username === username &&
@@ -33,7 +33,7 @@ function LogAdmin() {
           }
   
           if (isValid) {
-            navigate('/');
+            navigate('/dashboard1');
           } else {
             alert('Invalid credentials. Please try again.');
           }
@@ -76,4 +76,4 @@ function LogAdmin() {
   );
 }
 
-export default LogAdmin;
+export default LogAdmin1;

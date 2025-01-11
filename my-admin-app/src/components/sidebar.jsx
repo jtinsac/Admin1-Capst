@@ -46,9 +46,6 @@ return(
         <FontAwesomeIcon icon={faUser} className='user-icon' />
         <span className='dash'> Users </span></CustomLink>
 
-        <CustomLink className='sidebar-link' href ="/acc" >
-        <FontAwesomeIcon icon={faUser} className='user-icon' />
-        <span className='dash'> Add Account </span></CustomLink>
 
       </div>
 
@@ -56,17 +53,10 @@ return(
 
           <h4 className="win-header">FINANCE WINDOW</h4>
          
-           <CustomLink className='sidebar-link' href="/win1" >
+           <CustomLink className='sidebar-link' href="/winad1" >
            <FontAwesomeIcon icon={fa1} className='one'/>
            <span className='dash'> Window 1 </span></CustomLink>
 
-           <CustomLink className='sidebar-link' href="/win2" >
-           <FontAwesomeIcon icon={fa2} className='one' />
-           <span className='dash'>Window 2 </span></CustomLink>
-
-           <CustomLink  className='sidebar-link' href="/win3">
-           <FontAwesomeIcon icon={fa3} className='one' />
-           <span className='dash'>Window 3</span></CustomLink>
 
 
             <CustomLink className="settings" href ="/settings">

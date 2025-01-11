@@ -74,7 +74,7 @@ defaults.plugins.title.font.size = 20;
 defaults.plugins.title.color = "black";
 
 
-function Dashboard(){
+function Dashboard1(){
 
   const [data] = React.useState(() => [...tableData]);
   const [sorting, setSorting] = React.useState([]);
@@ -290,4 +290,4 @@ function Dashboard(){
     )
 }
 
-export default Dashboard
+export default Dashboard1
