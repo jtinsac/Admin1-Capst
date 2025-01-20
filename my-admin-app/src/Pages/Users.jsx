@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -76,29 +77,33 @@ function Users(){
   const [sorting, setSorting] = React.useState([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
 
+  const [pagination, setPagination] = React.useState({
+      pageIndex: 0,
+      pageSize: 5,
+    });
+
   const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      globalFilter,
-    },
-
-    initialState: {
-      pagination: {
-        pageSize: 5,
-        pageIndex: 0,
+      data,
+      columns,
+      state: {
+        sorting,
+        globalFilter,
+        pagination, // Use the pagination state here
       },
-    },
-    getCoreRowModel: getCoreRowModel(),
-
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-
-    onGlobalFilterChange: setGlobalFilter,
-    getFilteredRowModel: getFilteredRowModel(),
-    
-  });
+      initialState: {
+        pagination: {
+          pageSize: 5,
+          pageIndex: 0,
+        },
+      },
+      onSortingChange: setSorting,
+      onGlobalFilterChange: setGlobalFilter,
+      onPaginationChange: setPagination, // Update pagination handler
+      getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+      getFilteredRowModel: getFilteredRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+    });
 
   console.log(table.getRowModel());
 
