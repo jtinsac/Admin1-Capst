@@ -375,17 +375,17 @@ function Dashboard1(){
       <div className="visit-card">
          <h3 className="visit-header">Visitors Today</h3>
          <h1 className="visitor-count">{visitorCount}</h1>
-         <button className="btnResetDaily" onClick={handleResetDaily}>
+         {/* <button className="btnResetDaily" onClick={handleResetDaily}>
                   Reset Daily
-                </button>
+                </button> */}
        </div>
 
        <div className="visit-card">
          <h3 className="visit-header">This Month</h3>
          <h1 className="mos-visitor">{monthlyVisitorCount}</h1>
-         <button className="btnResetMonthly" onClick={handleResetMonthly}>
+         {/* <button className="btnResetMonthly" onClick={handleResetMonthly}>
                   Reset Monthly
-                </button>
+                </button> */}
       </div>
       </div>
       <BarChart database={database} />
