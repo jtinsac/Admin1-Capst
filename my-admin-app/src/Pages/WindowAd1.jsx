@@ -10,7 +10,8 @@ import {
   limitToFirst,
   onValue,
   update,
-  push,
+  get,
+  set,
   remove,
 } from "firebase/database";
 
@@ -27,23 +28,19 @@ function Window1() {
     measurementId: "G-VC0BZM9ERT",
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // State management
   const [currentQueue, setCurrentQueue] = useState(null);
   const [currentQueueId, setCurrentQueueId] = useState(null);
 
-  // Fetch the next queue when component mounts
   useEffect(() => {
     fetchNextQueue();
-    console.log("rendering")
+    console.log("Component rendered");
   }, []);
 
-  // Fetch next queue
   const fetchNextQueue = () => {
-    setCurrentQueue(null); // Clear current queue data
+    setCurrentQueue(null);
     const nextQueueQuery = query(
       ref(db, "queues"),
       orderByChild("Status"),
@@ -60,9 +57,13 @@ function Window1() {
           setCurrentQueueId(firstEntryKey);
 
           const queueRef = ref(db, `queues/${firstEntryKey}`);
-          const startTime = new Date().toISOString(); // Using ISO format for StartTime
+          const startTime = new Date().toISOString();
 
-          update(queueRef, { Status: "Processing", StartTime: startTime, Window_Received: "Window1"  })
+          update(queueRef, {
+            Status: "Processing",
+            StartTime: startTime,
+            Window_Received: "Window1",
+          })
             .then(() => {
               setCurrentQueue(data[firstEntryKey]);
             })
@@ -77,97 +78,88 @@ function Window1() {
     );
   };
 
-  // Complete current queue
   const completeCurrentQueue = () => {
     if (currentQueueId && confirm("Are you sure you want to proceed to the next queue?")) {
       const currentQueueRef = ref(db, `queues/${currentQueueId}`);
-      onValue(
-        currentQueueRef,
-        (snapshot) => {
-          if (snapshot.exists()) {
-            const currentData = snapshot.val();
-            const endTime = new Date().toISOString(); // Using ISO format for CompletedTime
-            const startTimeMillis = Date.parse(currentData.StartTime); // Parse StartTime as timestamp
-            const endTimeMillis = Date.now(); // Current time in milliseconds
-            const processingTimeMillis = endTimeMillis - startTimeMillis;
+      get(currentQueueRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const currentData = snapshot.val();
+          const endTime = new Date().toISOString();
+          const startTimeMillis = Date.parse(currentData.StartTime);
+          const endTimeMillis = Date.now();
+          const processingTimeMillis = endTimeMillis - startTimeMillis;
 
-            // Debugging logs
-            console.log("StartTime:", currentData.StartTime);
-            console.log("Parsed StartTime (ms):", startTimeMillis);
-            console.log("EndTime:", endTime);
-            console.log("Processing Time (ms):", processingTimeMillis);
+          const readableProcessingTime = formatProcessingTime(processingTimeMillis);
 
-            if (isNaN(startTimeMillis) || isNaN(processingTimeMillis)) {
-              console.error("Invalid time data for processing time calculation.");
-              alert("Cannot calculate processing time. StartTime is missing or invalid.");
-              return;
-            }
+          const queueNumber = currentData.Queue_Number || "Unknown";
+          const dateCompleted = new Date().toISOString().split("T")[0].replace(/-/g, "");
+          const newKey = `Q${queueNumber}_${dateCompleted}`;
 
-            const readableProcessingTime = formatProcessingTime(processingTimeMillis);
-
-            push(ref(db, "CompletedQueues"), {
-              ...currentData,
-              Status: "Completed",
-              CompletedTime: endTime,
-              ProcessingTime: readableProcessingTime,
-            }).then(() => {
-              remove(ref(db, `queues/${currentQueueId}`)).then(() => {
-                fetchNextQueue();
-              });
+          const completedQueueRef = ref(db, `CompletedQueues/${newKey}`);
+          set(completedQueueRef, {
+            ...currentData,
+            Status: "Completed",
+            CompletedTime: endTime,
+            ProcessingTime: readableProcessingTime,
+          })
+            .then(() => {
+              remove(ref(db, `queues/${currentQueueId}`))
+                .then(() => {
+                  alert(`Queue ${queueNumber} completed and saved successfully!`);
+                  fetchNextQueue();
+                })
+                .catch((error) => {
+                  console.error("Error removing completed queue:", error);
+                });
+            })
+            .catch((error) => {
+              console.error("Error saving completed queue:", error);
+              alert("Failed to save completed queue. Please try again.");
             });
-          }
-        },
-        { onlyOnce: true }
-      );
+        }
+      });
     }
   };
 
-  // Cancel current queue
   const cancelCurrentQueue = () => {
     if (currentQueueId && confirm("Are you sure you want to cancel this queue?")) {
       const reason = prompt("Please enter the reason for cancellation:");
       if (reason) {
         const currentQueueRef = ref(db, `queues/${currentQueueId}`);
-        const endTime = new Date().toISOString(); // Using ISO format for CompletedTime
-  
-        onValue(
-          currentQueueRef,
-          (snapshot) => {
-            if (snapshot.exists()) {
-              const currentData = snapshot.val();
-              const startTimeMillis = Date.parse(currentData.StartTime); // Parse StartTime as timestamp
-              const endTimeMillis = Date.now(); // Current time in milliseconds
-              const processingTimeMillis = endTimeMillis - startTimeMillis;
-  
-              let readableProcessingTime = "N/A"; // Default value
-              if (!isNaN(startTimeMillis) && !isNaN(processingTimeMillis)) {
-                readableProcessingTime = formatProcessingTime(processingTimeMillis);
-              }
-  
-              push(ref(db, "CompletedQueues"), {
-                ...currentData,
-                Status: "Cancelled",
-                CancelReason: reason,
-                CompletedTime: endTime,
-                ProcessingTime: readableProcessingTime, // Record calculated processing time
-              }).then(() => {
-                remove(ref(db, `queues/${currentQueueId}`)).then(() => {
-                  setCurrentQueue(null); // Clear the current queue
-                  fetchNextQueue(); // Fetch the next queue
-                });
+        const endTime = new Date().toISOString();
+
+        get(currentQueueRef).then((snapshot) => {
+          if (snapshot.exists()) {
+            const currentData = snapshot.val();
+            const startTimeMillis = Date.parse(currentData.StartTime);
+            const endTimeMillis = Date.now();
+            const processingTimeMillis = endTimeMillis - startTimeMillis;
+
+            const readableProcessingTime = formatProcessingTime(processingTimeMillis);
+
+            const queueNumber = currentData.Queue_Number || "Unknown";
+            const dateCancelled = new Date().toISOString().split("T")[0].replace(/-/g, "");
+            const newKey = `Q${queueNumber}_${dateCancelled}`;
+
+            const completedQueueRef = ref(db, `CompletedQueues/${newKey}`);
+            set(completedQueueRef, {
+              ...currentData,
+              Status: "Cancelled",
+              CancelReason: reason,
+              CompletedTime: endTime,
+              ProcessingTime: readableProcessingTime,
+            }).then(() => {
+              remove(ref(db, `queues/${currentQueueId}`)).then(() => {
+                alert(`Queue ${queueNumber} cancelled and removed.`);
+                fetchNextQueue();
               });
-            }
-          },
-          { onlyOnce: true }
-        );
-      } else {
-        alert("Cancellation reason is required.");
+            });
+          }
+        });
       }
     }
   };
-  
 
-  // Format processing time
   const formatProcessingTime = (milliseconds) => {
     const seconds = Math.floor((milliseconds / 1000) % 60);
     const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
@@ -198,12 +190,16 @@ function Window1() {
           </div>
           <div className="queue-container">
             <h2 className="now-serving">Current Queue:</h2>
-             <h2 className="q-num">  {currentQueue?.Queue_Number || "N/A"}</h2>
+            <h2 className="q-num">{currentQueue?.Queue_Number || "N/A"}</h2>
           </div>
           <div className="button-cont">
-            <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
+            <button className="cancel" onClick={cancelCurrentQueue}>
+              Cancel
+            </button>
             <button className="recall">Recall</button>
-            <button className="next" onClick={completeCurrentQueue}>Next Queue</button>
+            <button className="next" onClick={completeCurrentQueue}>
+              Next Queue
+            </button>
           </div>
         </div>
       </div>

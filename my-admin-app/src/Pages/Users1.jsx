@@ -16,36 +16,38 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Mail,
+  IdCard,
   Phone,
+  ChartLine,
   Search,
   User,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { database } from '../firebase.config';
+import { ref, get, child, onValue } from "firebase/database";
 
 
 
 const columnHelper = createColumnHelper();
 
 const columns = [
-  columnHelper.accessor("id", {
+  columnHelper.accessor("CustomUserId", {
     cell: (info) => info.getValue(),
     header: () => (
       <span className="flex items-center">
-        <User className="mr-2" size={16} /> ID
+        <IdCard className="mr-2" size={18} /> UserID
       </span>
     ),
   }),
-
-  columnHelper.accessor("studentno", {
+  columnHelper.accessor("Contact_Number", {
     cell: (info) => info.getValue(),
     header: () => (
       <span className="flex items-center">
-         Student Number
+        <Phone className="mr-2" size={16} /> Contact Number
       </span>
     ),
   }),
-
-  columnHelper.accessor("name", {
+  columnHelper.accessor("Name", {
     cell: (info) => info.getValue(),
     header: () => (
       <span className="flex items-center">
@@ -53,27 +55,38 @@ const columns = [
       </span>
     ),
   }),
-  columnHelper.accessor("email", {
-    id: "email",
-    cell: (info) => (
-      info.getValue()
-    ),
+  columnHelper.accessor("Email", {
+    cell: (info) => info.getValue(),
     header: () => (
-      <span className="flex items-center"> Email </span>
+      <span className="flex items-center">
+        <Mail className="mr-2" size={16} /> Email
+      </span>
     ),
   }),
-  columnHelper.accessor("status", {
-    header: () => (
-      <span className="flex items-center"> Status </span>
+  columnHelper.accessor("Verification_Status", {
+    cell: (info) => (
+      <span
+        className={`italic text-white p-2 px-3.5 rounded-3xl ${
+          info.getValue() === "Verified"
+            ? "bg-green-600"
+            : "bg-red-600"
+        }`}
+      >
+        {info.getValue()}
+      </span>
     ),
-    cell: (info) =><span className="italic text-white bg-green-600 p-2 px-3.5 rounded-3xl "> {info.getValue()}</span>
+    header: () => (
+      <span className="flex items-center">
+        <ChartLine className="mr-2" size={16} /> Status
+      </span>
+    ),
   }),
 ];
 
 
-function Users(){
+function Users1(){
 
-  const [data] = React.useState(() => [...regUserData]);
+  const [data, setData] = useState([]);
   const [sorting, setSorting] = React.useState([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
 
@@ -81,6 +94,29 @@ function Users(){
       pageIndex: 0,
       pageSize: 5,
     });
+
+    useEffect(() => {
+      // Listen for real-time data updates
+      const dbRef = ref(database, "users");
+      const unsubscribe = onValue(dbRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const usersData = snapshot.val();
+          const formattedData = Object.values(usersData).map((user) => ({
+            CustomUserId: user.CustomUserId,
+            Contact_Number: user.Contact_Number,
+            Name: user.Name,
+            Email: user.Email,
+            Verification_Status: user.Verification_Status,
+          }));
+          setData(formattedData); // Update the state with the new data
+        } else {
+          console.log("No data available");
+        }
+      });
+  
+      // Cleanup the listener when the component unmounts
+      return () => unsubscribe();
+    }, []);
 
   const table = useReactTable({
       data,
@@ -111,6 +147,9 @@ function Users(){
         <>
       <Sidebar/>
       <div className ="d-container">
+      <div className="p-7 border border-solid">
+      <h2 className= "font-nobile text-[#1c2e8b] text-3xl font-medium"> Users Record</h2>
+        </div>
           <div className="flex flex-col min-h-full max-xl:-4xl py-12 px-4 sm:px-6 lg:px-8">
                <div className="mb-4 relative">
                  <input
@@ -155,7 +194,7 @@ function Users(){
                      ))}
                    </thead>
                    <tbody className="bg-white divide-y divide-gray-200">
-                     {table.getRowModel().rows.map((row) => (
+                     {table.getPaginationRowModel().rows.map((row) => (
                        <tr key={row.id} className="hover:bg-gray-100 cursor-pointer">
                          {row.getVisibleCells().map((cell) => (
                            <td
@@ -249,4 +288,4 @@ function Users(){
     )
 }
 
-export default Users
+export default Users1
