@@ -75,24 +75,28 @@ function Window1() {
         (snapshot) => {
           if (snapshot.exists()) {
             const currentData = snapshot.val();
-            const endTime = new Date().toISOString();
+            const endTime = new Date();
             const startTimeMillis = Date.parse(currentData.StartTime);
             const processingTimeMillis = Date.now() - startTimeMillis;
-
+        
             if (isNaN(startTimeMillis) || isNaN(processingTimeMillis)) {
-              alert("Cannot calculate processing time. StartTime is missing or invalid.");
-              return;
+                alert("Cannot calculate processing time. StartTime is missing or invalid.");
+                return;
             }
-
+        
+            const formatToReadableDate = (date) =>
+                date.toISOString().replace("T", " ").split(".")[0];
+        
             const readableProcessingTime = formatProcessingTime(processingTimeMillis);
-
+            const formattedEndTime = formatToReadableDate(endTime);
+        
             push(ref(db, "CompletedQueues"), {
-              ...currentData,
-              Status: "Completed",
-              Date_and_Time_Completed: endTime,
-              ProcessingTime: readableProcessingTime,
+                ...currentData,
+                Status: "Completed",
+                Date_and_Time_Completed: formattedEndTime,
+                ProcessingTime: readableProcessingTime,
             }).then(() => {
-              remove(currentQueueRef).then(fetchNextQueue);
+                remove(currentQueueRef).then(fetchNextQueue);
             });
           }
         },
