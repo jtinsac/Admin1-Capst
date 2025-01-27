@@ -1,9 +1,7 @@
 import SidebarAd1 from "../components/sidebarAd1";
 import React, { useState, useEffect } from "react";
-import { initializeApp } from "firebase/app";
 import { database } from "../firebase.config"; // Import from firebaseconfig.js
 import {
-  getDatabase,
   ref,
   query,
   orderByChild,
@@ -29,6 +27,15 @@ function Window1() {
     fetchWindowStatus();
   }, []);
 
+  // Utility function to get a formatted date and time
+  const getReadableDateTime = () => {
+    const now = new Date();
+    const options = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true };
+    const formattedDate = `${now.getFullYear()}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
+    const formattedTime = now.toLocaleTimeString("en-US", options);
+    return `${formattedDate} ${formattedTime}`;
+  };
+
   // Fetch next queue
   const fetchNextQueue = () => {
     setCurrentQueue(null); // Clear current queue data
@@ -50,7 +57,11 @@ function Window1() {
           const queueRef = ref(db, `queues/${firstEntryKey}`);
           const startTime = new Date().toISOString();
 
-          update(queueRef, { Status: "Processing", StartTime: startTime, Window_Received: "Window1" })
+          update(queueRef, {
+            Status: "Processing",
+            StartTime: startTime,
+            Window_Received: "Window1",
+          })
             .then(() => setCurrentQueue(data[firstEntryKey]))
             .catch((error) => {
               console.error("Error updating queue status:", error);
@@ -75,28 +86,24 @@ function Window1() {
         (snapshot) => {
           if (snapshot.exists()) {
             const currentData = snapshot.val();
-            const endTime = new Date();
+            const readableEndTime = getReadableDateTime();
             const startTimeMillis = Date.parse(currentData.StartTime);
             const processingTimeMillis = Date.now() - startTimeMillis;
-        
+
             if (isNaN(startTimeMillis) || isNaN(processingTimeMillis)) {
-                alert("Cannot calculate processing time. StartTime is missing or invalid.");
-                return;
+              alert("Cannot calculate processing time. StartTime is missing or invalid.");
+              return;
             }
-        
-            const formatToReadableDate = (date) =>
-                date.toISOString().replace("T", " ").split(".")[0];
-        
+
             const readableProcessingTime = formatProcessingTime(processingTimeMillis);
-            const formattedEndTime = formatToReadableDate(endTime);
-        
+
             push(ref(db, "CompletedQueues"), {
-                ...currentData,
-                Status: "Completed",
-                Date_and_Time_Completed: formattedEndTime,
-                ProcessingTime: readableProcessingTime,
+              ...currentData,
+              Status: "Completed",
+              Date_and_Time_Completed: readableEndTime, // Formatted date and time
+              ProcessingTime: readableProcessingTime,
             }).then(() => {
-                remove(currentQueueRef).then(fetchNextQueue);
+              remove(currentQueueRef).then(fetchNextQueue);
             });
           }
         },
@@ -110,49 +117,44 @@ function Window1() {
     if (!currentQueueId) return;
 
     if (confirm("Are you sure you want to cancel this queue?")) {
-        const reason = prompt("Please enter the reason for cancellation:");
-        if (reason) {
-            const currentQueueRef = ref(db, `queues/${currentQueueId}`);
-            const endTime = new Date();
+      const reason = prompt("Please enter the reason for cancellation:");
+      if (reason) {
+        const currentQueueRef = ref(db, `queues/${currentQueueId}`);
+        const readableEndTime = getReadableDateTime();
 
-            const formatToReadableDate = (date) =>
-                date.toISOString().replace("T", " ").split(".")[0];
+        onValue(
+          currentQueueRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const currentData = snapshot.val();
+              const startTimeMillis = Date.parse(currentData.StartTime);
+              const processingTimeMillis = Date.now() - startTimeMillis;
 
-            const formattedEndTime = formatToReadableDate(endTime);
+              const readableProcessingTime = !isNaN(processingTimeMillis)
+                ? formatProcessingTime(processingTimeMillis)
+                : "N/A";
 
-            onValue(
-                currentQueueRef,
-                (snapshot) => {
-                    if (snapshot.exists()) {
-                        const currentData = snapshot.val();
-                        const startTimeMillis = Date.parse(currentData.StartTime);
-                        const processingTimeMillis = Date.now() - startTimeMillis;
-
-                        const readableProcessingTime = !isNaN(processingTimeMillis)
-                            ? formatProcessingTime(processingTimeMillis)
-                            : "N/A";
-
-                        push(ref(db, "CompletedQueues"), {
-                            ...currentData,
-                            Status: "Cancelled",
-                            CancelReason: reason,
-                            CompletedTime: formattedEndTime,
-                            ProcessingTime: readableProcessingTime,
-                        }).then(() => {
-                            remove(currentQueueRef).then(() => {
-                                setCurrentQueue(null);
-                                fetchNextQueue();
-                            });
-                        });
-                    }
-                },
-                { onlyOnce: true }
-            );
-        } else {
-            alert("Cancellation reason is required.");
-        }
+              push(ref(db, "CompletedQueues"), {
+                ...currentData,
+                Status: "Cancelled",
+                CancelReason: reason,
+                CompletedTime: readableEndTime, // Formatted date and time
+                ProcessingTime: readableProcessingTime,
+              }).then(() => {
+                remove(currentQueueRef).then(() => {
+                  setCurrentQueue(null);
+                  fetchNextQueue();
+                });
+              });
+            }
+          },
+          { onlyOnce: true }
+        );
+      } else {
+        alert("Cancellation reason is required.");
+      }
     }
-};
+  };
 
   // Format processing time
   const formatProcessingTime = (milliseconds) => {
@@ -206,31 +208,32 @@ function Window1() {
         <hr />
         <div className="user-container">
           <div className="userInfo-card">
-             <div className="user-Info">
-            <h3 className="uid">User ID:</h3>
-            <span className="userInfo-value">  {currentQueue?.UserID || "N/A"} </span>
-            </div>
-             
             <div className="user-Info">
-            <h3 className="uid">Name: </h3>
-            <span className="userInfo-value"> {currentQueue?.Name || "N/A"} </span>
+              <h3 className="uid">User ID:</h3>
+              <span className="userInfo-value">{currentQueue?.UserID || "N/A"}</span>
             </div>
-
             <div className="user-Info">
-            <h3 className="uid">Email:</h3>
-            <span className="userInfo-value">  {currentQueue?.Email || "N/A"} </span>
+              <h3 className="uid">Name:</h3>
+              <span className="userInfo-value">{currentQueue?.Name || "N/A"}</span>
             </div>
-             
             <div className="user-Info">
-            <h3 className="uid">Contact No: </h3>
-            <span className="userInfo-value"> {currentQueue?.ContactNumber || "N/A"} </span>
+              <h3 className="uid">Email:</h3>
+              <span className="userInfo-value">{currentQueue?.Email || "N/A"}</span>
             </div>
-            
             <div className="user-Info">
-            <h3 className="uid">Purpose: </h3>
-            <span className="userInfo-value"> {currentQueue?.Queue_Purpose || "N/A"} </span>
+              <h3 className="uid">Contact No:</h3>
+              <span className="userInfo-value">{currentQueue?.ContactNumber || "N/A"}</span>
             </div>
-
+            <div className="user-Info">
+              <h3 className="uid">Purpose:</h3>
+              <span className="userInfo-value">{currentQueue?.Queue_Purpose || "N/A"}</span>
+            </div>
+            <div className="user-Info">
+              <h3 className="uid">Completed Time:</h3>
+              <span className="userInfo-value">
+                {currentQueue?.CompletedTime ? currentQueue.CompletedTime : "N/A"}
+              </span>
+            </div>
           </div>
         </div>
         <div className="queue-container">
