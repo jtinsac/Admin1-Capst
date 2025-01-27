@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { auth, database } from '../firebase.config.js';
 import { ref, set, get, child } from 'firebase/database';
-import Sidebar from '../components/sidebar.jsx';
+import Sidebar from '../components/sidebarAd1.jsx';
 
 
 

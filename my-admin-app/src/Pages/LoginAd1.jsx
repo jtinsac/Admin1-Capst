@@ -59,13 +59,14 @@ function LogAdmin1() {
 
   return (
     <div className="log-cont">
-      <h2 className="logo">SmartQueues-Admin</h2>
+      <h2 className="logo">EasyQ's-Admin 1</h2>
       <div className="log-card">
         <div className="log-creds">
           <h2 className="credz">Username:</h2>
           <input
             className="inpz"
             type="text"
+            placeholder="juandelacruz9"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -74,6 +75,7 @@ function LogAdmin1() {
           <input
             className="inpz"
             type="password"
+            placeholder="**********"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
