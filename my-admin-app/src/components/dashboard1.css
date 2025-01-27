@@ -117,6 +117,16 @@
     letter-spacing: .5px;
 }
 
+.table-header2{
+    padding: 30px 35px 15px;
+    font-family: 'inter', sans-serif;
+    font-weight: 500;
+    font-size: 25px;
+    color: black;
+    letter-spacing: .5px;
+}
+
+
 .donut-card {
     flex: 1;
     background: #ffffff;
@@ -124,8 +134,8 @@
     border-radius: 10px;
     padding: 20px;
     min-width: 300px;
-    max-width: 100%; /* Allow it to shrink within parent */
-    height: 17rem;
+    max-width: 100%;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -138,14 +148,14 @@
   
   .student-rec {
     width: 100%;
-    height: auto; /* Allow height to scale naturally */
-    max-width: 400px; /* Set a maximum width */
+    height: auto; 
+    max-width: 400px; 
   }
 
+  th{
+    font-family: 'nobile', sans-serif;
+  }
 
-/* td{
-    font-family: 'nobile', Noto Sans;
-} */
 
 
 @media only screen and (max-width: 1024px) {

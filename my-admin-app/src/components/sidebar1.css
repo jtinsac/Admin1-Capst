@@ -64,7 +64,7 @@
 }
 
 .sidebar-link.active{
-  background-color: #bbd6ee;
+  background-color: #e3e1e1;
   color: #1C2E8B;
   padding: 10px;
   border-radius: 12px;
@@ -107,7 +107,7 @@
 }
 
 .conz{
- margin-top: 20rem;
+ margin-top: 21rem;
 }
 
 .logout{
