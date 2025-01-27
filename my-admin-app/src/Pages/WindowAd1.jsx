@@ -110,44 +110,49 @@ function Window1() {
     if (!currentQueueId) return;
 
     if (confirm("Are you sure you want to cancel this queue?")) {
-      const reason = prompt("Please enter the reason for cancellation:");
-      if (reason) {
-        const currentQueueRef = ref(db, `queues/${currentQueueId}`);
-        const endTime = new Date().toISOString();
+        const reason = prompt("Please enter the reason for cancellation:");
+        if (reason) {
+            const currentQueueRef = ref(db, `queues/${currentQueueId}`);
+            const endTime = new Date();
 
-        onValue(
-          currentQueueRef,
-          (snapshot) => {
-            if (snapshot.exists()) {
-              const currentData = snapshot.val();
-              const startTimeMillis = Date.parse(currentData.StartTime);
-              const processingTimeMillis = Date.now() - startTimeMillis;
+            const formatToReadableDate = (date) =>
+                date.toISOString().replace("T", " ").split(".")[0];
 
-              const readableProcessingTime = !isNaN(processingTimeMillis)
-                ? formatProcessingTime(processingTimeMillis)
-                : "N/A";
+            const formattedEndTime = formatToReadableDate(endTime);
 
-              push(ref(db, "CompletedQueues"), {
-                ...currentData,
-                Status: "Cancelled",
-                CancelReason: reason,
-                CompletedTime: endTime,
-                ProcessingTime: readableProcessingTime,
-              }).then(() => {
-                remove(currentQueueRef).then(() => {
-                  setCurrentQueue(null);
-                  fetchNextQueue();
-                });
-              });
-            }
-          },
-          { onlyOnce: true }
-        );
-      } else {
-        alert("Cancellation reason is required.");
-      }
+            onValue(
+                currentQueueRef,
+                (snapshot) => {
+                    if (snapshot.exists()) {
+                        const currentData = snapshot.val();
+                        const startTimeMillis = Date.parse(currentData.StartTime);
+                        const processingTimeMillis = Date.now() - startTimeMillis;
+
+                        const readableProcessingTime = !isNaN(processingTimeMillis)
+                            ? formatProcessingTime(processingTimeMillis)
+                            : "N/A";
+
+                        push(ref(db, "CompletedQueues"), {
+                            ...currentData,
+                            Status: "Cancelled",
+                            CancelReason: reason,
+                            CompletedTime: formattedEndTime,
+                            ProcessingTime: readableProcessingTime,
+                        }).then(() => {
+                            remove(currentQueueRef).then(() => {
+                                setCurrentQueue(null);
+                                fetchNextQueue();
+                            });
+                        });
+                    }
+                },
+                { onlyOnce: true }
+            );
+        } else {
+            alert("Cancellation reason is required.");
+        }
     }
-  };
+};
 
   // Format processing time
   const formatProcessingTime = (milliseconds) => {
