@@ -1,12 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 import { database } from '../firebase.config';
-import { ref, get, child, push } from 'firebase/database';
+import { ref, get, child, push, update } from 'firebase/database';
 
 function LogAdmin1() {
   const navigate = useNavigate();
-  const location = useLocation(); // Retrieve location state
-  const selectedWindow = location.state?.selectedWindow; // Access selectedWindow from location state
+  const location = useLocation();
+  const selectedWindow = location.state?.selectedWindow || 'Window1'; // Default to Window1
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,6 +34,9 @@ function LogAdmin1() {
         }
 
         if (isValid) {
+          // Store the logged-in Username in localStorage
+          localStorage.setItem('loggedInUsername', username);
+
           const loginHistoryRef = ref(database, 'Login_History');
           const now = new Date();
 
@@ -41,8 +44,12 @@ function LogAdmin1() {
             name: matchedAdmin.Name,
             date: now.toLocaleDateString(),
             time: now.toLocaleTimeString(),
-            window: selectedWindow || 'Unknown', // Use the selected window or default to "Unknown"
+            window: selectedWindow,
           });
+
+          // Update the LoginStatus of Window1 to "Active"
+          const windowRef = ref(database, `QueueSystemStatus/Window1`);
+          await update(windowRef, { LoginStatus: 'Active' });
 
           navigate('/dashboard1');
         } else {

@@ -243,6 +243,32 @@ function Dashboard1(){
   const [visitorCount, setVisitorCount] = React.useState("--");
   const [monthlyVisitorCount, setMonthlyVisitorCount] = React.useState("--");
   const [time, setTime] = useState(new Date().toLocaleTimeString('en-PH'));
+    const [userName, setUserName] = React.useState("");
+
+    React.useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        // Assume the logged-in username is stored in localStorage
+        const loggedInUsername = localStorage.getItem("loggedInUsername"); // Example: "admin1"
+        if (loggedInUsername) {
+          const userRef = ref(database, `admin/${loggedInUsername}`);
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            setUserName(userData.Name || "User");
+          } else {
+            console.error("User data not found");
+          }
+        } else {
+          console.error("No logged-in username found");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserName();
+  }, []);
 
   
 
@@ -531,7 +557,7 @@ const columns = [
      <div className="d-container">
       <div className="d-heading">
         <div className="name">
-         <h4>Welcome, Window Admin 1!</h4>
+        <h4>Welcome, {userName}! Window 1</h4>
          <h5 className="dash-date">{dbdate}</h5>
          </div>
             <div className="time">{time}</div>

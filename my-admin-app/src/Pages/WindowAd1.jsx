@@ -14,7 +14,7 @@ import {
 } from "firebase/database";
 import '../components/windowAd1.css'
 
-function WindowAd1() {
+function Window1() {
   const db = database; // Use imported database instance
 
   // State management
@@ -189,15 +189,39 @@ function WindowAd1() {
     });
   };
 
+  // Toggle Window1 status
+  const handleToggleStatus = () => {
+    const isDisabling = window1Status === "Active";
+    const confirmMessage = isDisabling
+      ? "Are you sure you want to disable Window 1?"
+      : "Do you want to enable Window 1?";
+
+    if (confirm(confirmMessage)) {
+      const window1Ref = ref(db, "QueueSystemStatus/Window1");
+      const newStatus = isDisabling ? "Inactive" : "Active";
+
+      update(window1Ref, { Status: newStatus })
+        .then(() => {
+          alert(`Window 1 has been ${newStatus === "Inactive" ? "disabled" : "enabled"}.`);
+        })
+        .catch((error) => {
+          console.error("Error updating status:", error);
+          alert("Failed to update Window 1 status. Please try again.");
+        });
+    }
+  };
 
   return (
     <>
       <SidebarAd1 />
       <div className="win1-container">
         <div className="win-headz">
-          <h2 className="win-title">FINANCE WINDOW 1</h2> 
+          <h2 className="win-title">FINANCE WINDOW 1</h2>
+          {/* <button className="disable" onClick={handleToggleStatus}>
+            {window1Status === "Active" ? "Disable" : "Enable"}
+          </button> */}
         </div>
-     
+
         <div className="user-container">
           <div className="userInfo-card">
             <div className="user-Info">
@@ -220,7 +244,13 @@ function WindowAd1() {
               <h3 className="uid">Purpose:</h3>
               <span className="userInfo-value">{currentQueue?.Queue_Purpose || "N/A"}</span>
             </div>
-           
+            <div className="user-Info">
+              <h3 className="uid">Completed Time:</h3>
+              <span className="userInfo-value">
+                {currentQueue?.CompletedTime ? currentQueue.CompletedTime : "N/A"}
+              </span>
+              
+            </div>
           </div>
         </div>
         <div className="queue-container">
@@ -232,6 +262,7 @@ function WindowAd1() {
           </div>
           <div className="qBtn-container">
             <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
+            <button className="recall">Recall</button>
             <button className="next" onClick={completeCurrentQueue}>Next Queue</button>
           </div>
         </div>
@@ -240,4 +271,4 @@ function WindowAd1() {
   );
 }
 
-export default WindowAd1;
+export default Window1;
