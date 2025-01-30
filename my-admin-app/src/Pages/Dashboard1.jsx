@@ -36,6 +36,10 @@ import { ref, get, child, set, query, orderByChild, equalTo, update, onValue } f
 import '../components/dashboard1.css'
 
 
+window.addEventListener("beforeunload", function (event) {
+  event.preventDefault();
+  event.returnValue = ""; // This is required for most browsers to show the confirmation dialog.
+});
 
 
 //code sa bargraph

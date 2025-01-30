@@ -14,6 +14,7 @@ import {
 } from "firebase/database";
 import '../components/windowAd1.css'
 
+
 function Window1() {
   const db = database; // Use imported database instance
 
@@ -21,6 +22,12 @@ function Window1() {
   const [currentQueue, setCurrentQueue] = useState(null);
   const [currentQueueId, setCurrentQueueId] = useState(null);
   const [window1Status, setWindow1Status] = useState("Active");
+
+  window.addEventListener("beforeunload", function (event) {
+    event.preventDefault();
+    event.returnValue = ""; // This is required for most browsers to show the confirmation dialog.
+});
+
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -262,7 +269,7 @@ function Window1() {
           </div>
           <div className="qBtn-container">
             <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
-            <button className="recall">Recall</button>
+
             <button className="next" onClick={completeCurrentQueue}>Next Queue</button>
           </div>
         </div>
