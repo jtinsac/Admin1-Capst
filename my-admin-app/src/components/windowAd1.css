@@ -118,7 +118,7 @@
  
 }
 
-.cancel, .next{
+.cancel, .next, .get{
     border-radius: 6px;
     font-size: 18px;
     font-family: 'nobile',sans-serif;
@@ -128,20 +128,22 @@
 
 .cancel{
     padding:16px 35px;
-    border: 1px solid rgb(50, 54, 173);
+    border: 1px solid rgb(184, 16, 16) !important;
     color: rgb(38, 76, 210);
     font-weight: 500;
     box-shadow: 2px 2px 2px rgb(205, 197, 197);
 }
 
+
 .cancel:hover{
-    background-color: rgb(246, 246, 246);
+    background-color: rgb(180, 47, 47 ) !important;
+    color:white;
 }
 
 .next{
     padding: 16px 50px;
     border: 2px solid #202022;
-    background-color: #5366c8;
+    background-color: #fff;
     color: #fff;
     font-weight: 500;
     box-shadow: 2px 2px 2px rgb(205, 197, 197);
@@ -150,6 +152,25 @@
 .next:hover{
     background-color: rgb(78, 78, 217);
     color:white;
+}
+
+.get{
+    padding: 16px 50px;
+    border: 2px solid rgb(26, 55, 158);
+    background-color: #fff;
+    color: rgb(38, 76, 210);
+    font-weight: 500;
+    box-shadow: 2px 2px 2px rgb(205, 197, 197);
+}
+
+.get:hover{
+    background-color: rgb(78, 78, 217);
+    color:white;
+}
+
+.disabled-btn {
+  pointer-events: none; /* Prevents clicking */
+  opacity: 0.5; /* Makes it visually clear that it's disabled */
 }
 
 

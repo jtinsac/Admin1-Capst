@@ -46,10 +46,7 @@ function Window1() {
   }, []);
 
   // Fetch the next queue when component mounts
-  useEffect(() => {
-    fetchNextQueue();
-    fetchWindowStatus();
-  }, []);
+
 
   // Utility function to get a formatted date and time
   const getReadableDateTime = () => {
@@ -98,12 +95,38 @@ function Window1() {
     );
   };
 
+  const nextCurrentQueue = () => {
+    if (currentQueue) {
+      toast.warning("There is already an active queue. Complete or cancel it first.");
+      return;
+    }
+  
+    Swal.fire({
+      title: "Next Queue?",
+      text: "Are you sure you want to get the next queue?",
+      icon: "question",
+      confirmButtonText: "Yes",
+      confirmButtonColor: "#1C2E8B",
+      showCancelButton: true,
+      customClass: {
+        confirmButton: "confirm-button",
+        cancelButton: "cancel-button",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetchNextQueue();
+        fetchWindowStatus();
+      }
+    });
+  };
+  
+
   // Complete current queue
   const completeCurrentQueue = async () => {
     if (!currentQueueId) return;
     const confirmQ = await Swal.fire({
       title: 'Next Queue?',
-      text: 'Are you sure you want to proceed to the next queue?',
+      text: 'Are you sure you want to complete the current queue?',
       icon: '',
       confirmButtonText: 'Yes',
       confirmButtonColor: '#1C2E8B',
@@ -139,7 +162,10 @@ function Window1() {
               Date_and_Time_Completed: readableEndTime, // Formatted date and time
               ProcessingTime: readableProcessingTime,
             }).then(() => {
-              remove(currentQueueRef).then(fetchNextQueue);
+              remove(currentQueueRef).then(() => {
+                setCurrentQueue(null);
+
+              });
             });
           }
         },
@@ -190,7 +216,6 @@ function Window1() {
               }).then(() => {
                 remove(currentQueueRef).then(() => {
                   setCurrentQueue(null);
-                  fetchNextQueue();
                 });
               });
             }
@@ -264,7 +289,13 @@ function Window1() {
           <div className="qBtn-container">
             <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
             <button className="next" onClick={completeCurrentQueue}>Finish Queue</button>
-            <button className="cancel" onClick={cancelCurrentQueue}>Get Queue</button>
+            <button 
+  className={`get ${currentQueue ? "disabled-btn" : ""}`} 
+  onClick={nextCurrentQueue}
+>
+  Get Queue
+</button>
+
           </div>
         </div>
       </div>
