@@ -13,7 +13,8 @@ import {
   remove,
 } from "firebase/database";
 import '../components/windowAd1.css'
-
+import { ToastContainer, toast } from 'react-toastify';
+import Swal from 'sweetalert2'
 
 function Window1() {
   const db = database; // Use imported database instance
@@ -90,7 +91,7 @@ function Window1() {
               console.error("Error updating queue status:", error);
             });
         } else {
-          alert("No more pending queues!");
+          toast("No more pending queues!");
         }
       },
       { onlyOnce: true }
@@ -98,10 +99,22 @@ function Window1() {
   };
 
   // Complete current queue
-  const completeCurrentQueue = () => {
+  const completeCurrentQueue = async () => {
     if (!currentQueueId) return;
+    const confirmQ = await Swal.fire({
+      title: 'Next Queue?',
+      text: 'Are you sure you want to proceed to the next queue?',
+      icon: '',
+      confirmButtonText: 'Yes',
+      confirmButtonColor: '#1C2E8B',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: "confirm-button",
+        cancelButton:"cancel-button",
+      }
+    }) 
+    if (confirmQ.isConfirmed){
 
-    if (confirm("Are you sure you want to proceed to the next queue?")) {
       const currentQueueRef = ref(db, `queues/${currentQueueId}`);
 
       onValue(
@@ -136,10 +149,21 @@ function Window1() {
   };
 
   // Cancel current queue
-  const cancelCurrentQueue = () => {
+  const cancelCurrentQueue = async () => {
     if (!currentQueueId) return;
-
-    if (confirm("Are you sure you want to cancel this queue?")) {
+    const confirmQ = await Swal.fire({
+      title: 'Cancel Queue?',
+      text: 'Are you sure you want to cancel this queue?',
+      icon: '',
+      confirmButtonText: 'Yes',
+      confirmButtonColor: '#1C2E8B',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: "confirm-button",
+        cancelButton:"cancel-button",
+      }
+    }) 
+    if (confirmQ.isConfirmed){
       const reason = prompt("Please enter the reason for cancellation:");
       if (reason) {
         const currentQueueRef = ref(db, `queues/${currentQueueId}`);
@@ -161,7 +185,7 @@ function Window1() {
                 ...currentData,
                 Status: "Cancelled",
                 CancelReason: reason,
-                CompletedTime: readableEndTime, // Formatted date and time
+                Date_and_Time_Completed: readableEndTime,
                 ProcessingTime: readableProcessingTime,
               }).then(() => {
                 remove(currentQueueRef).then(() => {
@@ -196,37 +220,13 @@ function Window1() {
     });
   };
 
-  // Toggle Window1 status
-  const handleToggleStatus = () => {
-    const isDisabling = window1Status === "Active";
-    const confirmMessage = isDisabling
-      ? "Are you sure you want to disable Window 1?"
-      : "Do you want to enable Window 1?";
-
-    if (confirm(confirmMessage)) {
-      const window1Ref = ref(db, "QueueSystemStatus/Window1");
-      const newStatus = isDisabling ? "Inactive" : "Active";
-
-      update(window1Ref, { Status: newStatus })
-        .then(() => {
-          alert(`Window 1 has been ${newStatus === "Inactive" ? "disabled" : "enabled"}.`);
-        })
-        .catch((error) => {
-          console.error("Error updating status:", error);
-          alert("Failed to update Window 1 status. Please try again.");
-        });
-    }
-  };
-
+  
   return (
     <>
       <SidebarAd1 />
       <div className="win1-container">
         <div className="win-headz">
           <h2 className="win-title">FINANCE WINDOW 1</h2>
-          {/* <button className="disable" onClick={handleToggleStatus}>
-            {window1Status === "Active" ? "Disable" : "Enable"}
-          </button> */}
         </div>
 
         <div className="user-container">
@@ -251,13 +251,7 @@ function Window1() {
               <h3 className="uid">Purpose:</h3>
               <span className="userInfo-value">{currentQueue?.Queue_Purpose || "N/A"}</span>
             </div>
-            <div className="user-Info">
-              <h3 className="uid">Completed Time:</h3>
-              <span className="userInfo-value">
-                {currentQueue?.CompletedTime ? currentQueue.CompletedTime : "N/A"}
-              </span>
-              
-            </div>
+         
           </div>
         </div>
         <div className="queue-container">
@@ -269,11 +263,12 @@ function Window1() {
           </div>
           <div className="qBtn-container">
             <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
-
-            <button className="next" onClick={completeCurrentQueue}>Next Queue</button>
+            <button className="next" onClick={completeCurrentQueue}>Finish Queue</button>
+            <button className="cancel" onClick={cancelCurrentQueue}>Get Queue</button>
           </div>
         </div>
       </div>
+      <ToastContainer  />
     </>
   );
 }

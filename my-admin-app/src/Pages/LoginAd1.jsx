@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 import { database } from '../firebase.config';
 import { ref, get, child, push, update } from 'firebase/database';
+import { ToastContainer, toast } from 'react-toastify';
 
 function LogAdmin1() {
   const navigate = useNavigate();
@@ -53,14 +54,14 @@ function LogAdmin1() {
 
           navigate('/dashboard1');
         } else {
-          alert('Invalid credentials. Please try again.');
+          toast.warn('Invalid credentials. Please try again.');
         }
       } else {
-        alert('No admin data found in the database.');
+        toast.error('No admin data found in the database.');
       }
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      alert('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
     }
   };
 
@@ -90,7 +91,7 @@ function LogAdmin1() {
             Submit
           </button>
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ToastContainer/>
       </div>
     </div>
   );

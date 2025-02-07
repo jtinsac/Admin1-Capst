@@ -81,7 +81,7 @@ function BarChart({ database }) {
     return () => unsubscribe();
   }, [database]);
   return (
-    <div className="bar-card student-dept">
+    <div className="bar-Card student-dept">
       <Bar
         data={{
           labels: sourceData.map((data) => data.label),
@@ -568,16 +568,16 @@ const columns = [
       </div>
        <hr/>
      <div className="d-content">
-     <div className="topDiv-header">Analytics</div>
+     <div className="topDiv-header">Visitors Analytics</div>
       <div className="topdiv">
      <div className="visit-wrapper">
-      <div className="visit-card">
+      <div className="visit-Card">
          <h3 className="visit-header">Visitors Today</h3>
          <h1 className="visitor-count">{visitorCount}</h1>
 
        </div>
 
-       <div className="visit-card">
+       <div className="visit-Card">
          <h3 className="visit-header">This Month</h3>
          <h1 className="mos-visitor">{monthlyVisitorCount}</h1>
         

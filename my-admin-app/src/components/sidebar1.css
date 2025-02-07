@@ -13,9 +13,11 @@
   background-color: rgb(255, 255, 255);
 }
 
-.sidebar-pages{
+.sidebar-wrapperAd1{
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;
 }
 
 .sidebar-logo{
@@ -106,18 +108,44 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.conz{
- margin-top: 21rem;
 
-}
-
-.logout{
+.ad1Logout-btn{
   display: flex ;
   align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: rgb(92, 92, 92);
   align-self: flex-end;
+  cursor: pointer;
+  transition: 0.3s;
 }
+
+.ad1Logout-btn:hover{
+  background-color: #1C2E8B;
+  color: #fff;
+  border-radius: 12px;
+
+}
+.confirm-button {
+  padding: 12px 50px; 
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.cancel-button{
+  padding: 12px 30px;
+  background-color: #fff;
+  font-size: 18px;
+  border: 1px solid #1C2E8B;
+  color: #1C2E8B;
+}
+
+.swal2-popup .swal2-styled:focus {
+  box-shadow: none !important;
+}
+
 
 @media only screen and (max-width: 1145px) {
   .sidebar-container{

@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import './index.css'; 
 import './App.css';   
 import './components/logAdmin.css'
-import './components/AddAccount.css'
 import './components/preLog.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'

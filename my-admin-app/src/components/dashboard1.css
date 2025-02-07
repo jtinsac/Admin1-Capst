@@ -62,10 +62,10 @@
     flex-direction: column;
     gap: .5rem;
 }
-.visit-card{
+.visit-Card{
     border: 1px solid #c7c7c7;
     border-radius: 10px;
-    padding:23.5px 30px 20px;
+    padding:23px 65px 20px 20px;
     background-color: rgb(255, 255, 255);
 }
 
@@ -88,7 +88,7 @@
     color: #1C2E8B;
 }
 
-.bar-card {
+.bar-Card {
     flex: 1;
     background: #ffffff;
     border: 1px solid #c7c7c7;
@@ -98,7 +98,7 @@
     height: 300px; 
   }
   
-  .bar-card canvas {
+  .bar-Card canvas {
     width: 100% !important; 
     height: 100% !important;
   }

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { db } from './firebase.config';
+import { db } from '../firebase.config';
 import { ref, onValue } from 'firebase/database';
 
 function Wins() {
