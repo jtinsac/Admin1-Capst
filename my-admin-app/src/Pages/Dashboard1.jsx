@@ -275,6 +275,26 @@ function Dashboard1(){
   }, []);
 
   
+  const [totalqueue, setTotalQueue] = useState(0);
+
+  useEffect(() => {
+    const dbRef = ref(database, "queues"); 
+    console.log("Fetching data from 'queues'..."); 
+
+    const unsubscribe = onValue(dbRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        console.log("Database Data:", data); 
+        setTotalQueue(Object.keys(data).length); 
+      } else {
+        console.log("No data found in 'queues'");
+        setTotalQueue(0);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [database]);
+  
 
   //code sa pagdisplay ng date
   const dbdate = new Date().toLocaleDateString('en-PH', {
@@ -559,12 +579,18 @@ const columns = [
    <>
      <SidebarAd1/>
      <div className="d-container">
+
       <div className="d-heading">
         <div className="name">
         <h4>Welcome, {userName}! Window 1</h4>
          <h5 className="dash-date">{dbdate}</h5>
          </div>
+
+        <div>
             <div className="time">{time}</div>
+            <h5> Pending Queues: {totalqueue}</h5>
+</div>
+
       </div>
        <hr/>
      <div className="d-content">
